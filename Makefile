@@ -3,8 +3,11 @@ CXXFLAGS= -Wall -O2 -g
 
 all: shell
 
-shell: src/user_input.o src/lexer.o src/main.o 
-	$(CC) src/user_input.o  src/lexer.o src/main.o  -o shell
+shell: src/user_input.o src/lexer.o src/token.o src/main.o 
+	$(CC) src/user_input.o  src/lexer.o src/main.o src/token.o  -o shell
+
+token.o: src/token.cpp
+	$(CC) $(CXXFLAGS) -c src/token.cpp
 
 lexer.o: src/lexer.cpp
 	$(CC) $(CXXFLAGS) -c src/lexer.cpp
