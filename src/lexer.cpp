@@ -40,9 +40,12 @@ void Lexer::iterate_cmd(GLOBAL_STRUCT *global_struct) {
     for(int index = global_struct->curr_index; index < global_struct->cmd_length; index++) {
         if(index == global_struct->cmd_length) {
             current_type = get_char_type(index); 
-            current_value += get_char(index); 
-            list_of_tokens.push_back(make_token(current_value, current_type)); 
-            reset(); 
+            if(current_type != SKIPPABLE) {
+                current_value += get_char(index); 
+                list_of_tokens.push_back(make_token(current_value, current_type)); 
+                reset(); 
+            } else 
+                continue; 
         } else {
            current_type = get_char_type(index);  
            next_type = get_char_type(index+1); 
@@ -70,15 +73,18 @@ void Lexer::iterate_cmd(GLOBAL_STRUCT *global_struct) {
                } else if(flagIden && next_type != NUMBER){
                    list_of_tokens.push_back(make_token(current_value, current_type)); 
                    reset(); 
+                   continue; 
                }
 
                if(!flagIden && current_type != next_type) {
                    current_value += get_char(index); 
                    list_of_tokens.push_back(make_token(current_value, current_type)); 
                    reset(); 
+                   continue; 
                } else if(flagIden && (next_type == SKIPPABLE || next_type == OPERATOR)) {
                    list_of_tokens.push_back(make_token(current_value, current_type)); 
                    reset(); 
+                   continue; 
                }
            }
         }
