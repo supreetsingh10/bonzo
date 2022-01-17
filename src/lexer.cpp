@@ -1,4 +1,5 @@
 #include "../include/lexer.hpp"
+#include <cstdlib>
 #include <iostream>
 #include <ostream>
 #include <string>
@@ -15,17 +16,29 @@ void cmd_to_struct(std::string cmd) {
 Lexer::Lexer() {
     for(char c='a'; c<='z'; c++)
        this->char_mapper[c] = IDENTIFIER; 
+    for(char c='A'; c<='Z'; c++)
+       this->char_mapper[c] = IDENTIFIER; 
     for(char c='0'; c<='9'; c++)
        this->char_mapper[c] = NUMBER;  
+    for(int i=33; i<=47; i++)
+        this->char_mapper[char(i)] = OPERATOR; 
+    for(int i=58; i<=64; i++)
+        this->char_mapper[char(i)] = OPERATOR; 
+    for(int i=91; i<=96; i++)
+        this->char_mapper[char(i)] = OPERATOR; 
     char_mapper['\n'] = SKIPPABLE; 
     char_mapper['\t'] = SKIPPABLE; 
     char_mapper[' '] = SKIPPABLE; 
     char_mapper[';'] = DELIMITER; 
     char_mapper['\\'] = DELIMITER;
 
+
 }
 
+// Used to clear the tokens
 Lexer::~Lexer() {
+    for(auto lot:list_of_tokens)
+        delete lot; 
     this->list_of_tokens.clear(); 
 }
 
@@ -49,10 +62,12 @@ void Lexer::iterate_cmd(GLOBAL_STRUCT *global_struct) {
         } else {
            current_type = get_char_type(index);  
            next_type = get_char_type(index+1); 
+
            if(current_type == SKIPPABLE) {
                flagIden = false; 
                continue; 
            }
+
            if(current_type == next_type) {
                current_value += get_char(index); 
                if(current_type == IDENTIFIER) {
@@ -72,6 +87,7 @@ void Lexer::iterate_cmd(GLOBAL_STRUCT *global_struct) {
                    current_type = IDENTIFIER; 
                } else if(flagIden && next_type != NUMBER){
                    list_of_tokens.push_back(make_token(current_value, current_type)); 
+                   flagIden = false; 
                    reset(); 
                    continue; 
                }
@@ -83,6 +99,7 @@ void Lexer::iterate_cmd(GLOBAL_STRUCT *global_struct) {
                    continue; 
                } else if(flagIden && (next_type == SKIPPABLE || next_type == OPERATOR)) {
                    list_of_tokens.push_back(make_token(current_value, current_type)); 
+                   flagIden = false; 
                    reset(); 
                    continue; 
                }
