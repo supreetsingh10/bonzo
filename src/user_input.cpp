@@ -3,7 +3,7 @@
 #include <string> 
 #include <iostream>
 
-//    sudo pacman -Syu
+// sudo pacman -Syu
 
 char prompt(int lnprompt) {
     switch(lnprompt) {
